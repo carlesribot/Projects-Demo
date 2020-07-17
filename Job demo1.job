@@ -1,10 +1,4 @@
 # this is a comment 
-# Add another comment
-  - SetParameter:
-      description: 'Determine Batchjob'
-      expr: REGEX_MATCH(@BatchJob.ClientApplication,'Console|Command|JobQueueService')
-      param -> @Batchjob
-
   - GetSPListItems:
       site: @Site
       list: '/Lists/Increase Rate Internal per COUNTRY'
