@@ -1,0 +1,68 @@
+# this is a comment 
+  - GetSPListItems:
+      site: @Site
+      list: '/Lists/Increase Rate Internal per COUNTRY'
+      outputTable -> @SpIncreaseRateList
+      caml:
+        <View>
+          <ViewFields>
+            <FieldRef Name="ID"/>
+            <FieldRef Name="Increase_x0020_p_x002e_a_x002e__"/>
+            <FieldRef Name="Country0"/>
+          </ViewFields>
+        </View>
+
+  - Query:
+      description: 'Join and format SP Lists'
+      outputTable -> @SpIncreaseRateList
+      query:
+        SELECT      i.ID AS SPID
+                    ,i.Increase_x0020_p_x002e_a_x002e__ AS [Increase p.a. %]
+                    ,c.Title AS [Country]
+                    ,i.Title AS [Title (Title)]
+                    ,GetDate() AS [InsertTimeStamp]
+        FROM        @SpIncreaseRateList i
+        INNER JOIN  @SpCountryList c
+            ON      i.Country0 = c.ID
+
+  - ExecutePowerShell:
+      psScript:
+        $table = New-Object System.Data.DataTable "SampleDataTable"
+        $id = New-Object System.Data.DataColumn ID,([int])
+        $table.Columns.Add($id)
+        1..1000 | % {
+            $row = $table.NewRow()
+            $row.ID = 2 * (Get-Random 6 )
+            $table.Rows.Add($row)
+        }
+        $table | Out-Host
+
+
+  - QueryODataProject:
+      description: 'Read all Enterprise Resources'
+      store: Published
+      request: 
+        EnterpriseResources
+        ?$expand=User
+        &$filter=ResourceType eq 1 and IsGeneric eq false and Email ne ''
+        &$select=Name,Id,Email,User/Id,User/LoginName
+      request2: 'EnterpriseResources
+                ?$expand=User
+                &$filter=ResourceType eq 1 and IsGeneric eq false and Email ne ''''
+                &$select=Name,Id,Email,User/Id,User/LoginName'
+      outputTable -> @EnterpriseResources
+
+  - SetFieldsMsp:
+      projId: @ProjID
+      scopes: ProjectTask
+      map:
+        task.Name: task.OutlineLevel
+        task.EnterpriseTextField_Health: 'Late'
+
+  - ExecuteRfc:
+      description: 'BAPI_EMPLOYEE_GETDATA'
+      rfcCalls:
+        - BAPI_EMPLOYEE_GETDATA:
+          EMPLOYEE_ID: @EmployeeNumber
+          DATE: @JobDate
+          ORG_ASSIGNMENT -> @ORG_ASSIGNMENT
