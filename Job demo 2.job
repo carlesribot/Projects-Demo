@@ -1,5 +1,19 @@
 # this is a comment 
+# this is a comment 2
   - GetSPListItems:
+      site: @Site
+      list: '/Lists/Increase Rate Internal per COUNTRY'
+      outputTable -> @SpIncreaseRateList
+      caml:
+        <View>
+          <ViewFields>
+            <FieldRef Name="ID"/>
+            <FieldRef Name="Increase_x0020_p_x002e_a_x002e__"/>
+            <FieldRef Name="Country0"/>
+          </ViewFields>
+        </View>
+
+        - GetSPListItems:
       site: @Site
       list: '/Lists/Increase Rate Internal per COUNTRY'
       outputTable -> @SpIncreaseRateList
