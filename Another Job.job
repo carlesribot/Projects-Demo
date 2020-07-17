@@ -1,1 +1,35 @@
-# Another Job in here
+# this is a comment
+  - SetParameter:
+      description: "'Init JSON'"
+      name:"Parameters.JSON"
+      expr:"'[{TaskUID:"CF1CA467-BE52-48CA-8EC6-1ADB13D2EEB4",FinishDate:"2019-11-01",PercentComplete:"60"},{TaskUID:"82C9F2D1-FD18-400F-851E-FE60E7BD4D53",FinishDate:"2019-08-23",PercentComplete:"20"}]'"
+      logLevel: "Error"
+
+  - ExecutePowerShell:
+      psScript:
+        # Get JSON
+        $JsonString = (Get-PSLinkParameter -Name JSON).Value
+                
+        $TaskTable = $JsonString.Replace('&quot;','"') | ConvertFrom-Json
+                        
+        # Create Return Object
+        $dt = New-Object System.Data.DataTable
+                        
+        $dt.Columns.Add("TaskUID",[System.GUID]) | Out-Null
+        $dt.Columns.Add("FinishDate",[datetime]) | Out-Null
+        $dt.Columns.Add("PercentComplete",[decimal]) | Out-Null
+                        
+        # Loop through table
+        foreach($row in $TaskTable) {
+                        
+            # Add Column to dt Table
+            $r = $dt.Rows.Add()
+            $r.TaskUID = $row.TaskUID
+            $r.FinishDate = $row.FinishDate
+            $r.PercentComplete = $row.PercentComplete
+        }
+                        
+        # Return Table to TPG PSLink
+        Set-PSLinkParameter TaskTable $dt
+
+    - ShowParameters:
