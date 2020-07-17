@@ -1,5 +1,6 @@
-# this is a changed comment 
-  - SetParameters:
+# this is a comment 
+# Add another comment
+  - SetParameter:
       description: 'Determine Batchjob'
       expr: REGEX_MATCH(@BatchJob.ClientApplication,'Console|Command|JobQueueService')
       param -> @Batchjob
